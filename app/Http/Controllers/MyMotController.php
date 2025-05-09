@@ -10,7 +10,7 @@ class MyMotController extends Controller
 {
     public function createMots(Request $request) {
         $request->validate([
-            '*.mot' => 'required|string',
+            'mot*.mot' => 'required|string',
             '*.longueur' => 'required|integer',
             '*.difficulté' => 'required'
         ]);

@@ -5,16 +5,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MyUserController;
 use App\Http\Controllers\MyMotController;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
 
 
 Route::get('/test',function(){
     return "salut";
 });
 
-Route::post('addUser',[MyUserController::class, "createUser"]);
+// Route::post('addUser',[MyUserController::class, "createUser"]);
+
+Route::post("createUser",[MyUserController::class,"createUser"]);
 
 Route::get('loginUser',[MyUserController::class,"loginUser"]);
 
