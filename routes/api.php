@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MyUserController;
@@ -10,9 +11,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::get('/test',function(){
-    return "salut";
-});
+Route::get('/test',[AuthController::class,'register'])->middleware('');
 
 // Route::post('addUser',[MyUserController::class, "createUser"]);
 
@@ -27,3 +26,9 @@ Route::delete('deleteAllMots',[MyMotController::class,"deleteAllMots"]);
 Route::get("get_random_mot",[MyMotController::class,"selectRandomMot"]);
 
 Route::get("get_score_user",[MyUserController::class,"getScoreUser"]);
+
+Route::post("register",[AuthController::class,"register"]);
+
+Route::middleware("jwt")->group(function () {
+    //mettre mes routes soumise a l'auth
+});
