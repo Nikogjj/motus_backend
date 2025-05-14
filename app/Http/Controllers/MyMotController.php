@@ -48,4 +48,18 @@ class MyMotController extends Controller
             "message"=>"tous les mots on été supprimés avec succès"
         ]);
     }
+
+    public function selectRandomMot(){
+        // $validated = $request->validate([
+        //     "longueur"=>"required|string",
+        // ]);
+        $randomInt = random_int(5,9);
+        $element = MyMot::where("longueur",$randomInt)->inRandomOrder()->first();
+        // return response()->json([$element]);
+        return response()->json([
+            "mot"=> $element["mot"],
+            "longueur"=> $element["longueur"],
+            "difficulte"=> $element["difficulté"]
+        ]);
+    }
 }

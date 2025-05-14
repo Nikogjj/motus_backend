@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\wall_of_fame;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -28,6 +29,11 @@ class MyUserController extends Controller
                 "password"=>Hash::make($request->password),
                 "numero_secu"=>$request->numero_secu
             ]);
+            $wall_of_fame =  new wall_of_fame();
+            $wall_of_fame->score = 0;
+            $wall_of_fame->user_id = $userCreated->id;
+            $wall_of_fame->save();
+
             return response([
                 "message"=>"Compte créer avec succès",
                 "description"=>[
@@ -53,8 +59,34 @@ class MyUserController extends Controller
     }
 
     public function loginUser(Request $request){
-        //voir avec massi pour avoir comment faire mon login
-        $request->validate([
+        $validatedFields = $request->validate([
+            'pseudo' => "required|string",
+            'password' => "required|string",
         ]);
+    
+        $user = MyUser::where('pseudo', $validatedFields['pseudo'])->first();
+    
+        if (!$user || !Hash::check($validatedFields['password'], $user->password)) {
+            return response()->json([
+                "message" => "Identifiants invalides"
+            ], 401);
+        }
+    
+        $userData = $user->only(['id', 'pseudo']);
+    
+        return response()->json([
+            "message" => "Connexion réussie",
+            "description" => $userData,
+            "error" => "none"
+        ]);
+    }
+
+    public function getScoreUser(Request $request){
+        $validatedFields = $request->validate([
+            'id' => "required|string",
+            // 'password' => "required|string",
+        ]);   
+        $userScore = wall_of_fame::where("user_id", $request->id)->first();
+        return response()->json($userScore->score);
     }
 }
