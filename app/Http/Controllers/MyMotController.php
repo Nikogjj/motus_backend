@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Illuminate\Http\Request;
 use App\Models\MyMot;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MyMotController extends Controller
 {
@@ -14,7 +17,6 @@ class MyMotController extends Controller
             '*.longueur' => 'required|integer',
             '*.difficulté' => 'required'
         ]);
-    
         $data = $request->json()->all();
         $createdMots = [];
     
@@ -61,5 +63,25 @@ class MyMotController extends Controller
             "longueur"=> $element["longueur"],
             "difficulte"=> $element["difficulté"]
         ]);
+    }
+
+    public function selectRandomMotByDifficulte(Request $request){
+        try {
+            $validated = $request->validate([
+                "difficulte"=>"required|string",
+            ]);
+            $element = MyMot::where("difficulté",$validated["difficulte"])->inRandomOrder()->first();
+            $randomMot = [
+                "mot"=> $element["mot"],
+                "difficulte"=>$element["difficulté"],
+                "longueur"=> $element["longueur"]
+            ];
+        } catch (\Throwable $th) {
+            $randomMot = [
+                "error" => "error"
+            ];
+        }finally{
+            return response()->json(data: $randomMot);
+        }
     }
 }
