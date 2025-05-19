@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\wall_of_fame;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -48,27 +49,37 @@ class AuthController extends Controller
 
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'Invalid credentials'], 401);
+                return response()->json([
+                    'error' => 'Identifiants incorrectes',
+                    'token' => 'none',
+                    'expires_in' => 'none'
+                ], 401);
             }
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Could not create token'], 500);
+            return response()->json([
+                'error' => 'Could not create token',
+                'token' => 'none',
+                'expires_in' => 'none'
+            ], 500);
         }
 
         return response()->json([
+            'error' => "none",
             'token' => $token,
             'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
+        Log::info($request);
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Failed to logout, please try again'], 500);
+            return response()->json(["error" => 'Failed to logout, please try again'], 500);
         }
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(["error" => "none"]);
     }
 
     public function getUser()
@@ -78,7 +89,11 @@ class AuthController extends Controller
             if (!$user) {
                 return response()->json(['error' => 'User not found'], 404);
             }
-            return response()->json($user);
+            $userScore = wall_of_fame::where('user_id', $user->id)->first();
+            return response()->json([
+                "pseudo" => $user->pseudo,
+                "score" => $userScore->score
+            ]);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Failed to fetch user profile'], 500);
         }

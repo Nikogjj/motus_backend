@@ -1,34 +1,19 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MyUserController;
 use App\Http\Controllers\MyMotController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-
-Route::get('/test',[AuthController::class,'register'])->middleware('');
-
-// Route::post('addUser',[MyUserController::class, "createUser"]);
-
-Route::post("createUser",[MyUserController::class,"createUser"]);
-
-Route::post('login_user',[MyUserController::class,"loginUser"]);
-
-Route::post('addMots',[MyMotController::class,"createMots"]);
-
-Route::delete('deleteAllMots',[MyMotController::class,"deleteAllMots"]);
-
+Route::post("register",[AuthController::class,"register"]);
+Route::post("login",[AuthController::class,"login"]);
 Route::get("get_random_mot",[MyMotController::class,"selectRandomMot"]);
 
-Route::get("get_score_user",[MyUserController::class,"getScoreUser"]);
-
-Route::post("register",[AuthController::class,"register"]);
 
 Route::middleware("jwt")->group(function () {
-    //mettre mes routes soumise a l'auth
+    Route::post("update_score_user",[MyUserController::class,"updateScoreUser"]);
+    Route::get("get_infos_user",[AuthController::class,"getUser"]);
+    Route::post("get_random_mot_by_difficulte",[MyMotController::class,"selectRandomMotByDifficulte"]);
+    Route::post("get_ranking",[MyUserController::class,"getRanking"]);
+    Route::post("logout",[AuthController::class,"logout"]);
 });

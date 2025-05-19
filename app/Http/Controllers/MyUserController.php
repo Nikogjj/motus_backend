@@ -10,83 +10,42 @@ use App\Models\MyUser;
 use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class MyUserController extends Controller
 {
-    public function createUser(Request $request){
-        // //attend un form avec pseudo password et numero_secu !!
-        $validatedFields = $request->validate([
-            'pseudo'=>"required|string",
-            'password'=>"required|string",
-        ]);
-
-        $userInfo = $request->json()->all();
-
-        $existing = MyUser::where('pseudo', $request->pseudo)->first();
-        if(!$existing){
-            $userCreated = MyUser::create([
-                "pseudo"=>$request->pseudo,
-                "password"=>Hash::make($request->password),
-                "numero_secu"=>$request->numero_secu
-            ]);
-            $wall_of_fame =  new wall_of_fame();
-            $wall_of_fame->score = 0;
-            $wall_of_fame->user_id = $userCreated->id;
-            $wall_of_fame->save();
-
-            return response([
-                "message"=>"Compte créer avec succès",
-                "description"=>[
-                    "id"=>$userCreated->id,
-                    "pseudo"=>$userCreated->pseudo
-                ],
-                "error" => "none"
-            ]);
-        }else{
-            return response([
-                "message"=>"Identifiant non disponible",
-                "description"=>"none",
-                "error" => "Identifiant non disponible"
-            ]);
-        }
+    public function getRanking(){
+        $top10Rank = wall_of_fame::with("user")
+            ->orderByDesc("score")
+            ->limit(20)
+            ->get()
+            ->map(function($entry){
+                return [
+                    "pseudo" => $entry->user->pseudo ?? "Inconnu",
+                    "score" => $entry->score,
+                ];
+            });
+        return response()->json($top10Rank);
     }
-
-    public function deleteAllUsers(Request $request){
-        DB::table("my_users")->delete();
-        return response()->json([
-            "message"=>"tous les mots on été supprimés avec succès"
-        ]);
-    }
-
-    public function loginUser(Request $request){
+    public function updateScoreUser(Request $request){
         $validatedFields = $request->validate([
-            'pseudo' => "required|string",
-            'password' => "required|string",
+            'scoreToAdd' => "required",
         ]);
-    
-        $user = MyUser::where('pseudo', $validatedFields['pseudo'])->first();
-    
-        if (!$user || !Hash::check($validatedFields['password'], $user->password)) {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'Utilisateur non trouvé'], 404);
+            }
+            $userScore = wall_of_fame::where('user_id', $user->id)->first();
+            $userScore->score += $validatedFields["scoreToAdd"];
+            $userScore->save();
             return response()->json([
-                "message" => "Identifiants invalides"
-            ], 401);
+                "pseudo" => "Score mis à jour",
+                "newScore" => $userScore->score
+            ]);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Error server'], 500);
         }
-    
-        $userData = $user->only(['id', 'pseudo']);
-    
-        return response()->json([
-            "message" => "Connexion réussie",
-            "description" => $userData,
-            "error" => "none"
-        ]);
-    }
-
-    public function getScoreUser(Request $request){
-        $validatedFields = $request->validate([
-            'id' => "required|string",
-            // 'password' => "required|string",
-        ]);   
-        $userScore = wall_of_fame::where("user_id", $request->id)->first();
-        return response()->json($userScore->score);
     }
 }

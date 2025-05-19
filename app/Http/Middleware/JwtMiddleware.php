@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Log;
 use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Exception;
@@ -17,6 +18,8 @@ class JwtMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        Log::info($request->headers);
+        
         try{
             JWTAuth::parseToken()->authenticate();
         }
