@@ -8,3 +8,5 @@
 - [ ] Générer la clé JWT : `php artisan jwt:secret`
 - [ ] Exécuter les migrations : `php artisan migrate`
 - [ ] Lancer le serveur : `php artisan serve`
+
+La BDD sqlite est déjà présente dans le repo pas besoin d'en créer une autre.
