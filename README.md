@@ -2,7 +2,7 @@
 
 Dans votre terminal :
 
-- Cloner le dépôt : `git clone https://github.com/Nikogjj/motus_backend.git`
+- Cloner le dépôt : ```git clone https://github.com/Nikogjj/motus_backend.git```
 - Se déplacer dans le dossier : `cd motus_backend`
 - Installer les dépendances PHP : `composer install`
 - Copier le fichier d’environnement : `cp .env.example .env`
