@@ -6,7 +6,10 @@ Dans votre terminal :
 ```bash
 git clone https://github.com/Nikogjj/motus_backend.git
 ```
-- Se déplacer dans le dossier : `cd motus_backend`
+- Se déplacer dans le dossier :
+  ```bash
+  cd motus_backend
+  ```
 - Installer les dépendances PHP : `composer install`
 - Copier le fichier d’environnement : `cp .env.example .env`
 - Générer la clé de l’application Laravel : `php artisan key:generate`
